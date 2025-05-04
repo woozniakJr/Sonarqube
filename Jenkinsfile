@@ -7,7 +7,7 @@ pipeline {
         DOCKERHUB_USER = 'mouhamed2555' // Replace with your Docker Hub username
         DOCKER_CREDENTIALS = credentials('dimanche')  // Replace with your Docker Hub credentials ID
         SONARQUBE_URL = 'http://localhost:9000/' // Replace with your SonarQube URL
-        SONARQUBE_TOKEN = credentials('SONAR_TOKEN') // Replace with your SonarQube token ID
+        SONARQUBE_TOKEN = credentials('sonar_token') // Replace with your SonarQube token ID
     }
 
     stages {
