@@ -1,0 +1,39 @@
+services:
+  backend:
+    build: ./Backend/odc
+    container_name: backend_app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./Frontend
+    container_name: frontend_app
+    ports:
+      - "8085:80"
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: odc
+      POSTGRES_PASSWORD: odc123
+      POSTGRES_DB: odcdb
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  migrate:
+    build: ./Backend/odc
+    command: python manage.py migrate
+    depends_on:
+      - db
+      - backend
+      
+volumes:
+  postgres_data:
+
