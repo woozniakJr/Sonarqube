@@ -13,7 +13,7 @@ pipeline {
         stage('Checkout') {
             agent any
             steps {
-                echo '📦 Clonage du dépôt...'
+                echo '📥 Clonage du dépôt...'
                 checkout scm
             }
         }
@@ -21,12 +21,17 @@ pipeline {
         stage('SonarQube Analysis for Backend') {
             agent any
             steps {
-                dir('Backend\\odc') {
+                dir('Backend/odc') {
                     echo '🔍 Analyse SonarQube du Backend...'
                     withSonarQubeEnv('SonarQube') {
-                        bat "\"${tool 'SonarQube-Scanner'}\\bin\\sonar-scanner.bat\" " +
-                            "-Dsonar.token=%SONARQUBE_TOKEN% " +
-                            "-Dsonar.host.url=%SONARQUBE_URL%"
+                        bat """
+                            ${tool 'SonarQube-Scanner'}\\bin\\sonar-scanner.bat ^
+                            -Dsonar.projectKey=backend ^
+                            -Dsonar.projectName=backend ^
+                            -Dsonar.sources=. ^
+                            -Dsonar.host.url=%SONARQUBE_URL% ^
+                            -Dsonar.token=%SONARQUBE_TOKEN%
+                        """
                     }
                 }
             }
@@ -38,64 +43,67 @@ pipeline {
                 dir('Frontend') {
                     echo '🔍 Analyse SonarQube du Frontend...'
                     withSonarQubeEnv('SonarQube') {
-                        bat "\"${tool 'SonarQube-Scanner'}\\bin\\sonar-scanner.bat\" " +
-                            "-Dsonar.token=%SONARQUBE_TOKEN% " +
-                            "-Dsonar.host.url=%SONARQUBE_URL%"
+                        bat """
+                            ${tool 'SonarQube-Scanner'}\\bin\\sonar-scanner.bat ^
+                            -Dsonar.projectKey=frontend ^
+                            -Dsonar.projectName=frontend ^
+                            -Dsonar.sources=. ^
+                            -Dsonar.host.url=%SONARQUBE_URL% ^
+                            -Dsonar.token=%SONARQUBE_TOKEN%
+                        """
                     }
                 }
             }
         }
 
-        stage('Build & Test Django app') {
+        stage('Build & Test Django App') {
             agent any
             steps {
-                dir('Backend\\odc') {
-                    echo '⚙️ Création de l’environnement virtuel et exécution des tests Django...'
-                    bat '''
+                dir('Backend/odc') {
+                    echo '⚙️ Création de l’environnement virtuel et test Django...'
+                    bat """
                         python -m venv venv
-                        call venv\\Scripts\\activate.bat
+                        call venv\\Scripts\\activate
                         pip install --upgrade pip
                         pip install -r requirements.txt
                         python manage.py test
-                    '''
+                    """
                 }
             }
         }
 
-        stage('Build & Test React app') {
+        stage('Build & Test React App') {
             agent any
             steps {
                 dir('Frontend') {
                     echo '⚙️ Installation des dépendances et build React...'
-                    bat '''
-                        call npm install
-                        call npm run build
-                    '''
+                    bat """
+                        npm install
+                        npm run build
+                    """
                 }
             }
         }
 
-        stage('Build Docker images') {
+        stage('Build Docker Images') {
             agent any
             steps {
                 echo '🐳 Construction des images Docker...'
-                dir('Backend\\odc') {
-                    script {
+                script {
+                    dir('Backend/odc') {
                         bat "docker build -t ${DOCKERHUB_USER}/userprofile_backend:latest -f Dockerfile ."
                     }
-                }
-                dir('Frontend') {
-                    script {
+                    dir('Frontend') {
                         bat "docker build -t ${DOCKERHUB_USER}/userprofile_frontend:latest -f Dockerfile ."
                     }
                 }
             }
         }
 
-        stage('Push Docker images') {
+        stage('Push Docker Images') {
             agent any
             steps {
-                echo '🚀 Push des images Docker sur Docker Hub...'
+                echo '🚀 Envoi des images Docker sur Docker Hub...'
                 withCredentials([usernamePassword(credentialsId: 'userprofile-credentials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
                     bat """
                         echo %DOCKER_PASSWORD% | docker login -u %DOCKERHUB_USER% --password-stdin
@@ -106,14 +114,14 @@ pipeline {
             }
         }
 
-        stage('Run the app') {
+        stage('Run the App') {
             agent any
             steps {
-                echo '🚀 Lancement de l’application avec Docker Compose...'
-                bat '''
+                echo '🚀 Lancement de l’application...'
+                bat """
                     docker compose down || exit 0
                     docker compose up --build -d
-                '''
+                """
             }
         }
     }
@@ -121,7 +129,7 @@ pipeline {
     post {
         always {
             echo '🧹 Nettoyage...'
-            echo '✅ Pipeline terminé avec succès.'
+            echo '✅ CI/CD terminé avec succès'
         }
     }
 }
