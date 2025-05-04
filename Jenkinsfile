@@ -104,7 +104,7 @@ pipeline {
             agent any
             steps {
                 echo '🚀 Envoi des images Docker sur Docker Hub...'
-                withCredentials([usernamePassword(credentialsId: 'userprofile-credentials', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
+                withCredentials([usernamePassword(credentialsId: 'dimanche', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKER_PASSWORD')]) {
                     bat """
                         echo %DOCKER_PASSWORD% | docker login -u %DOCKERHUB_USER% --password-stdin
                         docker push %DOCKERHUB_USER%/userprofile_backend:latest
