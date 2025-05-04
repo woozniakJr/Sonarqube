@@ -45,8 +45,8 @@ pipeline {
                     withSonarQubeEnv('SonarQube') {
                         bat """
                             ${tool 'SonarQube-Scanner'}\\bin\\sonar-scanner.bat ^
-                            -Dsonar.projectKey=frontend ^
-                            -Dsonar.projectName=frontend ^
+                            -Dsonar.projectKey=Frontend ^
+                            -Dsonar.projectName=Frontend ^
                             -Dsonar.sources=. ^
                             -Dsonar.host.url=%SONARQUBE_URL% ^
                             -Dsonar.token=%SONARQUBE_TOKEN%
