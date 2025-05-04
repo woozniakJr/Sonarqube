@@ -25,7 +25,7 @@ pipeline {
                 dir('Backend/odc') {
                     echo 'Analyse SonarQube du Backend...'
                     withSonarQubeEnv('SonarQube') {
-                        sh "${tool 'SonarScanner'}/bin/sonar-scanner -Dsonar.token=$SONARQUBE_TOKEN -Dsonar.host.url=$SONARQUBE_URL"
+                        sh "${tool 'SonarQube-Scanner'}/bin/sonar-scanner -Dsonar.token=$SONARQUBE_TOKEN -Dsonar.host.url=$SONARQUBE_URL"
                         
                     }
                 }
@@ -38,7 +38,7 @@ pipeline {
                 dir('Frontend') {
                     echo 'Analyse SonarQube du Frontend...'
                     withSonarQubeEnv('SonarQube') {
-                        sh "${tool 'SonarScanner'}/bin/sonar-scanner -Dsonar.token=$SONARQUBE_TOKEN -Dsonar.host.url=$SONARQUBE_URL"
+                        sh "${tool 'SonarQube-Scanner'}/bin/sonar-scanner -Dsonar.token=$SONARQUBE_TOKEN -Dsonar.host.url=$SONARQUBE_URL"
                     }
                 }
             }
